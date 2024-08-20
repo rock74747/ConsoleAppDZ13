@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace ConsoleAppDZ13
 {
@@ -6,38 +7,48 @@ namespace ConsoleAppDZ13
     {
         static void Main(string[] args)
         {
-            FilmManager <Film> film = new FilmManager <Film> ();
-           
-            film.AddFilm(new Film("Терминатор", "Фильм о роботе из будущего", 00001, "Фантастика", 2002));
-            film.AddFilm(new Film("Подлодка U-235", "Фильм о немецкой подлодке во время II мировой", 00002, "Боевик", 2019));
-            film.AddFilm(new Film("Битва богов", "Фильм о вражде скандинавских богов", 00003, "Фантастика", 2021));
-            film.AddFilm(new Film("Капитан Марвел", "Фильм по комиксам известной компании Марвел ", 00004, "Фантастика", 2019));
-            film.AddFilm(new Film("Паучий рейс", "Фильм о самолете, тайно перевозящего смертельно опасных ядовитых пауков", 00005, "Ужасы", 2024));
-            film.AddFilm(new Film("Плохие парни: навсегда", "Фильм о полицейских", 00006, "Триллер", 2020));
-            film.AddFilm(new Film("Оверлорд", "Фильм о II мировой войне", 00007, "Триллер", 2018));
-            film.AddFilm(new Film("Маска", "Фильм о чудике, который нашел маску бога", 00008, "Комедия", 2002));
-            film.AddFilm(new Film("Дюна", "Фильм о противостоянии великих домов", 00009, "Фантастика", 2021));
-            film.AddFilm(new Film("Звезда родилась", "Фильм о любви музыканта Джексона и Элли", 00010, "Мелодрама", 2018));
-            film.AddFilm(new Film("Терминатор", "Фильм о роботе из будущего", 000125, "Фантастика", 2002));
+            FilmManager film = new FilmManager();
+
+            film.AddFilm(new Film { Title = "Терминатор", Description = "Фильм о роботе из будущего", Id = 00001, Genre = "Фантастика", Year = 2002 });
+            film.AddFilm(new Film{ Title = "Подлодка U-235", Description = "Фильм о немецкой подлодке во время II мировой", Id = 00002, Genre = "Боевик", Year = 2019 });
+            film.AddFilm(new Film{ Title = "Битва богов", Description = "Фильм о вражде скандинавских богов", Id = 00003, Genre = "Фантастика", Year = 2021 });
+            film.AddFilm(new Film{ Title = "Капитан Марвел", Description = "Фильм по комиксам известной компании Марвел ", Id = 00004, Genre = "Фантастика", Year = 2019 });
+            film.AddFilm(new Film{ Title = "Паучий рейс", Description = "Фильм о самолете, тайно перевозящего смертельно опасных ядовитых пауков", Id = 00005, Genre = "Ужасы", Year = 2024 });
+            film.AddFilm(new Film{ Title = "Плохие парни: навсегда", Description = "Фильм о полицейских", Id = 00006, Genre = "Триллер", Year = 2020 });
+            film.AddFilm(new Film{ Title = "Оверлорд", Description = "Фильм о II мировой войне", Id = 00007, Genre = "Триллер", Year = 2018 });
+            film.AddFilm(new Film{ Title = "Маска", Description = "Фильм о чудике, который нашел маску бога", Id = 00008, Genre = "Комедия", Year = 2002 });
+            film.AddFilm(new Film{ Title = "Дюна", Description = "Фильм о противостоянии великих домов", Id = 00009, Genre = "Фантастика", Year = 2021 });
+            film.AddFilm(new Film{ Title = "Звезда родилась", Description = "Фильм о любви музыканта Джексона и Элли", Id = 00010, Genre = "Мелодрама", Year = 2018 });
+            film.AddFilm(new Film{ Title = "Терминатор", Description = "Фильм о роботе из будущего", Id = 000125, Genre = "Фантастика", Year = 2002 });
 
             
             film.Print();
-            IEnumerable<Film> filtrFilm = film.FiltrFilmsByGenry (); // Поиск фильмов по жанру
+            IEnumerable<IFilm> filtrFilm = film.FiltrFilmsByGenry (); // Поиск фильмов по жанру
             foreach (var item in filtrFilm)
             {
                 Console.WriteLine($"Id: {item.Id} \nНазвание фильма: {item.Title} \nОписание фильма:" +
-                    $" {item.Description} \nЖанр фильма: {item.Genre} \nГод выхода фильма: {item.Date} ");
+                    $" {item.Description} \nЖанр фильма: {item.Genre} \nГод выхода фильма: {item.Year} ");
             }
+            film.SaveToXML("Films.xml"); // Сохранение в xml
+            Console.WriteLine("\nЗагрузка фильмов из xml файла");
+            film.Clear();
+            foreach (IFilm el in film.LoadFromXML("Films.xml"))
+            {
+                film.AddFilm(el);
+                el.Print();
+            }
+
+            film.SaveToJson("Film.json");      // // Сохранение в json
+            Console.WriteLine("\nЗагрузка фильмов из json файла");
+            film.Clear();
+            foreach (var el in film.LoadFromJson("Film.json"))
+            {
+                film.AddFilm(el);
+                el.Print();
+            }
+
             film.Remove();
             film.Print();
-            film.SaveToJson("Film.json"); // Сохранение в json
-            Console.WriteLine("\nЗагрузка фильмов из json файла");
-            film.LoadFromJson("Film.json"); // Загрузка из json файла
-            foreach (var item in film.list)
-            {
-                Console.WriteLine($"Id: {item.Id} \nНазвание фильма: {item.Title} \nОписание фильма:" +
-                    $" {item.Description} \nЖанр фильма: {item.Genre} \nГод выхода фильма: {item.Date} ");
-            }
         }
     }
 }

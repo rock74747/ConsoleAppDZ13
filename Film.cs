@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ConsoleAppDZ13
 {
@@ -13,16 +14,10 @@ namespace ConsoleAppDZ13
         public string Description { get; set; }
         public long Id { get; set; }
         public string Genre { get; set; }  // жанр
-        public int Date { get; set; } // выход фильма
-        public Film (string title, string description, long id, string genre, int date)
+        public int Year { get; set; } // выход фильма
+        public void Print() // Метод вывода фильма в консоль
         {
-            this.Title = title;
-            this.Description = description;
-            this.Id = id;
-            this.Genre = genre;
-            this.Date = date;
+            Console.WriteLine($"Название: {Title}, Описание: {Description}. Id: {Id}, Жанр: {Genre}, Год выхода: {Year}");
         }
-
-
     }
 }

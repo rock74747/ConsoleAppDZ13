@@ -12,8 +12,7 @@ namespace ConsoleAppDZ13
         string Description { get; set; }
         long Id { get; set; }
         string Genre { get; set; }  // жанр
-        int Date { get; set; } // год выхода фильма
-        
-
+        int Year { get; set; } // год выхода фильма
+        void Print();
     }
 }

@@ -15,59 +15,28 @@ using System.Formats.Asn1;
 
 namespace ConsoleAppDZ13
 {
-    public class FilmManager<T> where T : IFilm
+    public class FilmManager
     {
-        public List<Film> list = new List<Film> { };
+        public List<IFilm> list = new List<IFilm> ();
 
-        public void AddFilm(Film film)
+        public void AddFilm(IFilm obj) // Метод добавление фильма
         {
             try
             {
-                var title1 = list.Any(x => x.Title == film.Title);
-                var date1 = list.Any(x => x.Date == film.Date);
+                var title1 = list.Any(x => x.Title == obj.Title);
+                var date1 = list.Any(x => x.Year == obj.Year);
                 if (title1 && date1)
                 {
                     throw new InvalidContactException($"Фильм с данным индексом или названием уже существует");
                 }
                 else
-                    list.Add(film);
+                    list.Add(obj);
             }
             catch (InvalidContactException ex)
             {
                 Console.WriteLine($"Ошибка: {ex.Message}");
             }
         }
-        public void Add()                                        // Добавление фильма в коллекцию
-        {
-            Console.WriteLine("\nДобавление фильма.");
-            Console.WriteLine("Введите ID фильма ->");
-            long id = (long)Convert.ToInt64(Console.ReadLine());
-            Console.WriteLine("Введите название фильма ->");
-            string title = Console.ReadLine();
-            Console.WriteLine("Введите описание фильма ->");
-            string description = Console.ReadLine();
-            Console.WriteLine("Введите жанр фильма ->");
-            string genre = Console.ReadLine();
-            Console.WriteLine("Введите год выпуска фильма в прокат ->");
-            int date = Convert.ToInt32(Console.ReadLine());
-            try
-            {
-                var title1 = list.Any(x => x.Title == title);
-                var date1 = list.Any(x => x.Date == date);
-                if (title1 && date1)
-                {
-                    throw new InvalidContactException($"Фильм с данным названием уже существует");
-                }
-                else
-                    list.Add(new Film(title, description, id, genre, date));
-                Console.WriteLine("Фильм добавлен в коллекцию");
-            }
-            catch (InvalidContactException ex)
-            {
-                Console.WriteLine($"Ошибка: {ex.Message}");
-            }
-        }
-
         public void Remove()                                        // Удаление фильма из коллекции
         {
             Console.WriteLine("\nУдаление фильма.");
@@ -89,7 +58,7 @@ namespace ConsoleAppDZ13
                 Console.WriteLine($"Ошибка: {ex.Message}");
             }
         }
-        public IEnumerable<Film> FiltrFilmsByGenry()            // Поиск по жанру
+        public IEnumerable<IFilm> FiltrFilmsByGenry()            // Поиск по жанру
         {
             Console.WriteLine("\nПоиск фильмов по жанру");
             Console.WriteLine("\nВведите жанр фильма ->");
@@ -101,18 +70,48 @@ namespace ConsoleAppDZ13
             foreach (var item in list)
             {
                 Console.WriteLine($"Id: {item.Id} \nНазвание фильма: {item.Title} \nОписание фильма:" +
-                    $" {item.Description} \nЖанр фильма: {item.Genre} \nГод выхода фильма: {item.Date} ");
+                    $" {item.Description} \nЖанр фильма: {item.Genre} \nГод выхода фильма: {item.Year} ");
             }
         }
+        public void Clear() { list.Clear(); }
         public void SaveToJson(string path) // Метод сохранения в файл json
         {
             string json = JsonConvert.SerializeObject(list);
             File.WriteAllText(path, json);
         }
-        public void LoadFromJson(string path) // Возвращаем список, которые выпишем из нашего файла json
+        public IEnumerable<IFilm> LoadFromJson(string path) // Возвращаем список, которые выпишем из нашего файла json
         {
             string json = File.ReadAllText(path);
-            list = JsonConvert.DeserializeObject<List<Film>>(json);
+            return JsonConvert.DeserializeObject<List<Film>>(json);
+        }
+
+
+        
+        public void SaveToXML(string path) // Метод сохранения коллекции фильмов в xml-файле
+        {
+            XElement xml = new XElement("Films",
+                from f in list
+                select new XElement("Film",
+                new XAttribute("Title", f.Title),
+                new XAttribute("Description", f.Description),
+                new XAttribute("Id", f.Id),
+                new XAttribute("Genre", f.Genre),
+                new XAttribute("Year", f.Year)
+                ));
+            xml.Save(path);
+        }
+
+        public IEnumerable<IFilm> LoadFromXML(string path) // Метод загрузки фильмов из xml-файла
+        {
+            XDocument xml = XDocument.Load(path); 
+            var result = xml.Descendants("Film").Select(p => new Film
+                  { Title = p.Attribute("Title").Value,
+                    Description = p.Attribute("Description").Value,
+                    Id = long.Parse (p.Attribute("Id").Value),
+                    Genre = p.Attribute("Genre").Value,
+                    Year = int.Parse (p.Attribute("Year").Value)
+                }).ToList();
+            return result;
         }
     }
 }
